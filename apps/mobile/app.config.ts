@@ -32,6 +32,9 @@ const config: ExpoConfig = {
   extra: {
     appEnv: process.env.EXPO_PUBLIC_APP_ENV ?? "development",
     apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
+    eas: {
+      projectId: "16353579-c1ec-461e-8e1a-be33a862f0d0",
+    },
   },
 };
 
