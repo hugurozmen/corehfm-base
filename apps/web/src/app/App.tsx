@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppProviders } from "./providers/AppProviders";
 import { LoginPage } from "../features/auth/LoginPage";
-import { DashboardPage } from "../features/dashboard/DashboardPage";
 import {
   DiscoverWebPage,
   FiltersWebPage,
@@ -25,7 +24,7 @@ export function App() {
     <AppProviders>
       <Routes>
         <Route element={<LoginPage />} path="/login" />
-        <Route element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} path="/" />
+        <Route element={<Navigate replace to="/discover" />} path="/" />
         <Route element={<ProtectedRoute><DiscoverWebPage /></ProtectedRoute>} path="/discover" />
         <Route element={<ProtectedRoute><MapWebPage /></ProtectedRoute>} path="/map" />
         <Route element={<ProtectedRoute><ListsWebPage /></ProtectedRoute>} path="/lists" />
