@@ -1,3 +1,4 @@
+import { useMemo, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../auth/auth-store";
 
@@ -67,7 +68,7 @@ const flowPages = [
   ["Atmosfer", "/flow/atmosphere"],
 ] as const;
 
-function Shell({ children, title }: { children: React.ReactNode; title: string }) {
+function Shell({ children, title }: { children: ReactNode; title: string }) {
   const logout = useAuthStore((state) => state.logout);
 
   return (
@@ -346,21 +347,137 @@ export function FiltersWebPage() {
 }
 
 export function SwipeWebPage() {
-  const cafe = cafes[3]!;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [dragStart, setDragStart] = useState<number | null>(null);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [message, setMessage] = useState("Kaydirma modu hazir.");
+  const [stats, setStats] = useState({ liked: 0, saved: 0, skipped: 0 });
+  const cafe = cafes[activeIndex % cafes.length]!;
+  const nextCafe = cafes[(activeIndex + 1) % cafes.length]!;
+  const dragIntent = useMemo(() => {
+    if (dragOffset > 84) {
+      return "Begen";
+    }
+    if (dragOffset < -84) {
+      return "Gec";
+    }
+    return "";
+  }, [dragOffset]);
+
+  const advance = (action: "liked" | "saved" | "skipped") => {
+    const labels = {
+      liked: "begenildi",
+      saved: "kaydedildi",
+      skipped: "gecildi",
+    };
+
+    setStats((current) => ({ ...current, [action]: current[action] + 1 }));
+    setMessage(`${cafe.name} ${labels[action]}. Siradaki: ${nextCafe.name}.`);
+    setActiveIndex((current) => current + 1);
+    setDragOffset(0);
+    setDragStart(null);
+  };
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDragStart(event.clientX);
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (dragStart === null) {
+      return;
+    }
+    setDragOffset(Math.max(-160, Math.min(160, event.clientX - dragStart)));
+  };
+
+  const handlePointerEnd = (event: PointerEvent<HTMLDivElement>) => {
+    if (dragStart === null) {
+      return;
+    }
+
+    const finalOffset = event.clientX - dragStart;
+    if (finalOffset > 90) {
+      advance("liked");
+      return;
+    }
+    if (finalOffset < -90) {
+      advance("skipped");
+      return;
+    }
+
+    setDragOffset(0);
+    setDragStart(null);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      advance("liked");
+    }
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      advance("skipped");
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      advance("saved");
+    }
+  };
+
   return (
     <Shell title="Kaydirarak Kesfet">
-      <div className="web-swipe-card">
-        <img alt={cafe.name} src={cafe.image} />
-        <div>
-          <span>{cafe.distance} uzakta • {cafe.area}</span>
-          <h2>{cafe.name}</h2>
-          <p>{cafe.tags.join(" • ")}</p>
-        </div>
-      </div>
-      <div className="web-filter-row">
-        <button type="button">Gec</button>
-        <button type="button">Kaydet</button>
-        <button type="button">Begen</button>
+      <div className="web-swipe-layout">
+        <section className="web-swipe-stage" aria-label="Kaydirma modu">
+          <div
+            aria-describedby="swipe-help swipe-status"
+            aria-label={`${cafe.name}, ${cafe.area}, puan ${cafe.rating}`}
+            className={dragStart === null ? "web-swipe-card" : "web-swipe-card dragging"}
+            onKeyDown={handleKeyDown}
+            onPointerCancel={handlePointerEnd}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerEnd}
+            role="group"
+            style={{
+              transform: `translateX(${dragOffset}px) rotate(${dragOffset / 22}deg)`,
+            }}
+            tabIndex={0}
+          >
+            <img alt={cafe.name} src={cafe.image} />
+            {dragIntent ? <strong className="web-swipe-intent">{dragIntent}</strong> : null}
+            <div className="web-swipe-copy">
+              <span>{cafe.distance} uzakta • {cafe.area}</span>
+              <h2>{cafe.name}</h2>
+              <p>{cafe.tags.join(" • ")}</p>
+            </div>
+          </div>
+          <p className="sr-only" id="swipe-help">
+            Sola surukle veya sol ok ile gec, saga surukle veya sag ok ile begen, yukari ok ile kaydet.
+          </p>
+          <p aria-live="polite" className="web-swipe-status" id="swipe-status">
+            {message}
+          </p>
+          <div className="web-filter-row web-swipe-actions">
+            <button onClick={() => advance("skipped")} type="button">Gec</button>
+            <button onClick={() => advance("saved")} type="button">Kaydet</button>
+            <button onClick={() => advance("liked")} type="button">Begen</button>
+          </div>
+        </section>
+        <aside className="web-swipe-panel" aria-label="Kaydirma ozeti">
+          <div>
+            <span>Aktif Kart</span>
+            <strong>{(activeIndex % cafes.length) + 1}/{cafes.length}</strong>
+          </div>
+          <div>
+            <span>Siradaki</span>
+            <strong>{nextCafe.name}</strong>
+          </div>
+          <div className="web-swipe-stats">
+            <span><strong>{stats.liked}</strong> Begenildi</span>
+            <span><strong>{stats.saved}</strong> Kaydedildi</span>
+            <span><strong>{stats.skipped}</strong> Gecildi</span>
+          </div>
+        </aside>
       </div>
     </Shell>
   );

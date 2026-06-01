@@ -20,6 +20,18 @@
   box-sizing: border-box;
 }
 
+.sr-only {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
 body {
   margin: 0;
 }
@@ -674,6 +686,40 @@ h1 {
   position: relative;
 }
 
+.web-swipe-layout {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+.web-swipe-stage {
+  display: grid;
+  gap: 12px;
+}
+
+.web-swipe-card {
+  box-shadow: 0 24px 60px rgba(90, 56, 37, 0.18);
+  cursor: grab;
+  min-height: 520px;
+  touch-action: pan-y;
+  transition:
+    box-shadow 160ms ease,
+    transform 160ms ease;
+  user-select: none;
+}
+
+.web-swipe-card:focus-visible {
+  outline: 3px solid #3f7d55;
+  outline-offset: 4px;
+}
+
+.web-swipe-card.dragging {
+  box-shadow: 0 30px 70px rgba(90, 56, 37, 0.24);
+  cursor: grabbing;
+  transition: none;
+}
+
 .web-hero-card img,
 .web-swipe-card img {
   height: 100%;
@@ -692,7 +738,7 @@ h1 {
 }
 
 .web-hero-card div,
-.web-swipe-card div {
+.web-swipe-copy {
   bottom: 26px;
   left: 26px;
   position: absolute;
@@ -705,6 +751,78 @@ h1 {
   font-size: 42px;
   line-height: 1;
   margin: 8px 0;
+}
+
+.web-swipe-intent {
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  color: #3f7d55;
+  font-size: 26px;
+  font-weight: 900;
+  left: 24px;
+  padding: 8px 14px;
+  position: absolute;
+  text-transform: uppercase;
+  top: 24px;
+  z-index: 1;
+}
+
+.web-swipe-status {
+  background: #ffffff;
+  border: 1px solid #ecd8cb;
+  border-radius: 8px;
+  color: #5a3825;
+  font-weight: 900;
+  margin: 0;
+  padding: 12px 14px;
+}
+
+.web-swipe-actions button {
+  min-width: 110px;
+}
+
+.web-swipe-panel {
+  background: #ffffff;
+  border: 1px solid #ecd8cb;
+  border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(90, 56, 37, 0.1);
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.web-swipe-panel > div {
+  border-bottom: 1px solid #f0ddd2;
+  display: grid;
+  gap: 5px;
+  padding-bottom: 14px;
+}
+
+.web-swipe-panel > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.web-swipe-panel span {
+  color: #6f5245;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.web-swipe-panel strong {
+  color: #2a1a14;
+  font-size: 20px;
+}
+
+.web-swipe-stats {
+  grid-template-columns: 1fr;
+}
+
+.web-swipe-stats span {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
 }
 
 .web-filter-row {
@@ -1016,7 +1134,8 @@ h1 {
 
   .web-grid.two,
   .web-grid.three,
-  .web-place-detail {
+  .web-place-detail,
+  .web-swipe-layout {
     grid-template-columns: 1fr;
   }
 }
