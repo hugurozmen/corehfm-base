@@ -14,6 +14,9 @@ const config: ExpoConfig = {
   },
   ios: {
     bundleIdentifier: "com.hugurozmen.cafinder",
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+    },
     supportsTablet: true,
   },
   android: {
