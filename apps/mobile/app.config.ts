@@ -13,9 +13,11 @@ const config: ExpoConfig = {
     typedRoutes: true,
   },
   ios: {
+    bundleIdentifier: "com.hugurozmen.cafinder",
     supportsTablet: true,
   },
   android: {
+    package: "com.hugurozmen.cafinder",
     adaptiveIcon: {
       backgroundColor: "#FFF8F5",
       backgroundImage: "./assets/android-icon-background.png",
