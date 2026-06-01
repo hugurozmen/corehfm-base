@@ -1,7 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
-import { colors } from "@core/ui";
 import { useAuthStore } from "./auth-store";
 
 const loginSchema = z.object({
@@ -19,7 +18,7 @@ export function LoginPage() {
     register,
   } = useForm<LoginForm>({
     defaultValues: {
-      email: "developer@example.com",
+      email: "deniz@cafinder.app",
     },
   });
 
@@ -30,11 +29,10 @@ export function LoginPage() {
   return (
     <main className="auth-shell">
       <section className="auth-panel">
-        <p className="eyebrow">CoreHFM Base</p>
-        <h1>React starter for fast product teams</h1>
+        <p className="eyebrow">Cafinder Preview</p>
+        <h1>Turkce kahve kesif deneyimi</h1>
         <p className="lede">
-          Vite, routing, mock auth, TanStack Query, shared env validation, API client, and workspace
-          packages are wired for the first feature.
+          Mobile-first Cafinder mockuplarini base proje uzerinde canli preview olarak incele.
         </p>
 
         <form
@@ -47,13 +45,11 @@ export function LoginPage() {
             }
           })}
         >
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">Preview email</label>
           <input id="email" type="email" {...register("email")} />
-          {errors.email ? (
-            <span style={{ color: colors.danger }}>{errors.email.message}</span>
-          ) : null}
+          {errors.email ? <span className="field-error">{errors.email.message}</span> : null}
 
-          <button type="submit">Continue</button>
+          <button type="submit">Open Cafinder</button>
         </form>
       </section>
     </main>

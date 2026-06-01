@@ -1,10 +1,10 @@
 import type { ExpoConfig } from "expo/config";
 
 const config: ExpoConfig = {
-  name: "CoreHFM Base",
-  slug: "corehfm-base",
+  name: "Cafinder",
+  slug: "cafinder",
   version: "1.0.0",
-  scheme: "corehfm",
+  scheme: "cafinder",
   orientation: "portrait",
   icon: "./assets/icon.png",
   userInterfaceStyle: "light",
@@ -17,7 +17,7 @@ const config: ExpoConfig = {
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
+      backgroundColor: "#FFF8F5",
       backgroundImage: "./assets/android-icon-background.png",
       foregroundImage: "./assets/android-icon-foreground.png",
       monochromeImage: "./assets/android-icon-monochrome.png",
