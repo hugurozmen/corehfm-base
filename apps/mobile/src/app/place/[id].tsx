@@ -168,12 +168,12 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   heroImage: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     height: "100%",
     width: "100%",
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(42, 26, 20, 0.34)",
   },
   heroTop: {

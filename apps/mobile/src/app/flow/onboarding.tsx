@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   overlay: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(42, 26, 20, 0.35)",
   },
   title: {

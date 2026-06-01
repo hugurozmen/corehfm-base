@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   heroImage: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     height: "100%",
     width: "100%",
   },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(42, 26, 20, 0.36)",
   },
   heroTitle: {

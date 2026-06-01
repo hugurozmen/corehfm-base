@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   savedImage: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     height: "100%",
     width: "100%",
   },
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   savedOverlay: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(42, 26, 20, 0.34)",
   },
   savedTile: {

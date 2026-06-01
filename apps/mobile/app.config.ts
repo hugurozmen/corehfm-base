@@ -8,7 +8,7 @@ const config: ExpoConfig = {
   orientation: "portrait",
   icon: "./assets/icon.png",
   userInterfaceStyle: "light",
-  plugins: ["expo-router"],
+  plugins: ["expo-router", "expo-secure-store"],
   experiments: {
     typedRoutes: true,
   },

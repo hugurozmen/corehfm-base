@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   heroShade: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(42, 26, 20, 0.34)",
     borderRadius: radius.xl,
   },
