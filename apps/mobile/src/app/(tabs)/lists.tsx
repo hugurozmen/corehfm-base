@@ -1,5 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
   AppHeader,
   CafeCard,
@@ -14,11 +15,17 @@ import { cafinderTheme, shadow } from "@/features/cafinder/theme";
 const { colors, radius, spacing } = cafinderTheme;
 
 export default function ListsScreen() {
+  const router = useRouter();
+
   return (
     <Screen>
-      <AppHeader subtitle="Kaydettigin ve olusturdugun rotalar" title="Listelerim" />
+      <AppHeader
+        onAction={() => router.push("/screens")}
+        subtitle="Kaydettigin ve olusturdugun rotalar"
+        title="Listelerim"
+      />
 
-      <View style={styles.createCard}>
+      <Pressable onPress={() => router.push("/lists/new")} style={styles.createCard}>
         <View style={styles.createIcon}>
           <MaterialIcons color={colors.surface} name="add" size={28} />
         </View>
@@ -27,9 +34,9 @@ export default function ListsScreen() {
           <Text style={styles.createText}>Kendi kesif rotani yarat ve arkadaslarinla paylas.</Text>
         </View>
         <IconButton icon="chevron-right" />
-      </View>
+      </Pressable>
 
-      <SectionTitle action="Duzenle" title="Ozel listeler" />
+      <SectionTitle action="Yeni liste" title="Ozel listeler" />
       {curatedLists.map((item) => (
         <ListCard item={item} key={item.id} />
       ))}
@@ -41,7 +48,7 @@ export default function ListsScreen() {
       <SectionTitle action="Tumunu gor" title="Gidilecekler" />
       <View style={styles.savedGrid}>
         {cafes.slice(1, 5).map((cafe) => (
-          <Pressable key={cafe.id} style={styles.savedTile}>
+          <Pressable key={cafe.id} onPress={() => router.push("/saved")} style={styles.savedTile}>
             <Image source={{ uri: cafe.imageUrl }} style={styles.savedImage} />
             <View style={styles.savedOverlay} />
             <Text numberOfLines={1} style={styles.savedTitle}>

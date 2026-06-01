@@ -5,8 +5,16 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     }
   },
-  "include": ["src", "app.config.ts", "metro.config.js"]
+  "include": [
+    "src",
+    "app.config.ts",
+    "metro.config.js",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }

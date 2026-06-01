@@ -1,5 +1,6 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
   AppHeader,
   PrimaryButton,
@@ -12,6 +13,7 @@ import { cafinderTheme, shadow } from "@/features/cafinder/theme";
 const { colors, radius, spacing } = cafinderTheme;
 
 export default function PlanScreen() {
+  const router = useRouter();
   const cafe = cafes[0];
 
   return (
@@ -34,7 +36,11 @@ export default function PlanScreen() {
           <PlanStep icon="group-add" label="Davet" />
         </View>
 
-        <PrimaryButton icon="group-add" label="Arkadaslarini Davet Et" />
+        <PrimaryButton
+          icon="group-add"
+          label="Arkadaslarini Davet Et"
+          onPress={() => router.push("/plan/new")}
+        />
       </View>
 
       <SectionTitle title="Arkadaslarini davet et" />

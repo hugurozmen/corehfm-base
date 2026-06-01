@@ -1,5 +1,6 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
   AppHeader,
   PrimaryButton,
@@ -14,12 +15,17 @@ import { useAuthStore } from "@/features/auth/store";
 const { colors, radius, spacing } = cafinderTheme;
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const email = useAuthStore((state) => state.email);
   const logout = useAuthStore((state) => state.logout);
 
   return (
     <Screen>
-      <AppHeader subtitle={email ?? "deniz@cafinder.app"} title="Profil" />
+      <AppHeader
+        onAction={() => router.push("/screens")}
+        subtitle={email ?? "deniz@cafinder.app"}
+        title="Profil"
+      />
 
       <View style={styles.profileCard}>
         <Image
@@ -38,7 +44,12 @@ export default function ProfileScreen() {
           <ProfileStat label="Favori Liste" value="8" />
           <ProfileStat label="Rozet" value="15" />
         </View>
-        <PrimaryButton icon="edit" label="Profili Duzenle" variant="secondary" />
+        <PrimaryButton
+          icon="edit"
+          label="Profili Duzenle"
+          onPress={() => router.push("/profile/detail")}
+          variant="secondary"
+        />
       </View>
 
       <SectionTitle title="Rozetlerim" />
@@ -56,11 +67,11 @@ export default function ProfileScreen() {
 
       <SectionTitle title="Hesap ayarlari" />
       <View style={styles.settings}>
-        <SettingRow icon="person" label="Hesap" />
+        <SettingRow icon="person" label="Hesap" onPress={() => router.push("/profile/detail")} />
         <SettingRow icon="notifications" label="Bildirimler" />
-        <SettingRow icon="restaurant-menu" label="Diyet tercihleri" />
+        <SettingRow icon="restaurant-menu" label="Diyet tercihleri" onPress={() => router.push("/filters")} />
         <SettingRow icon="lock" label="Gizlilik" />
-        <SettingRow icon="help" label="Yardim ve destek" />
+        <SettingRow icon="help" label="Tum mockup ekranlari" onPress={() => router.push("/screens")} />
       </View>
 
       <PrimaryButton icon="logout" label="Cikis Yap" onPress={logout} variant="ghost" />

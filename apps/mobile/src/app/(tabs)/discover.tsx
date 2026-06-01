@@ -1,10 +1,12 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
   AppHeader,
   CafeCard,
   Chip,
   HeroCafeCard,
+  PrimaryButton,
   Screen,
   SearchBar,
   SectionTitle,
@@ -15,11 +17,17 @@ import { cafinderTheme, shadow } from "@/features/cafinder/theme";
 const { colors, radius, spacing } = cafinderTheme;
 
 export default function DiscoverScreen() {
+  const router = useRouter();
   const [petra, espresso, kronotrop, norm, vienna] = cafes;
 
   return (
     <Screen>
-      <AppHeader eyebrow="Gunaydin Deniz" subtitle="Bugun hangi moddasın?" title="Cafinder" />
+      <AppHeader
+        eyebrow="Gunaydin Deniz"
+        onAction={() => router.push("/filters")}
+        subtitle="Bugun hangi moddasın?"
+        title="Cafinder"
+      />
       <SearchBar />
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -57,7 +65,13 @@ export default function DiscoverScreen() {
       <CafeCard cafe={espresso} />
       <CafeCard cafe={kronotrop} />
 
-      <SectionTitle title="Kaydirarak kesfet" />
+      <SectionTitle action="Tam ekran" title="Kaydirarak kesfet" />
+      <PrimaryButton
+        icon="swipe"
+        label="Kaydirma Modunu Ac"
+        onPress={() => router.push("/discover-swipe")}
+        variant="secondary"
+      />
       <View style={styles.swipeCard}>
         <CafeCard cafe={vienna} />
         <View style={styles.swipeActions}>

@@ -187,3 +187,26 @@ export const profileBadges = [
   { icon: "wb-sunny", title: "Erken Kus" },
   { icon: "explore", title: "Kasif" },
 ] as const;
+
+export const popularCities = [
+  {
+    districts: ["Kadikoy", "Moda", "Fenerbahce"],
+    imageUrl:
+      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80",
+    name: "Istanbul",
+  },
+  {
+    districts: ["Cankaya", "Kavaklidere", "Bahcelievler"],
+    imageUrl:
+      "https://images.unsplash.com/photo-1621346404989-df2000f12cce?auto=format&fit=crop&w=800&q=80",
+    name: "Ankara",
+  },
+  {
+    districts: ["Alsancak", "Karsiyaka", "Bornova"],
+    imageUrl:
+      "https://images.unsplash.com/photo-1527838832700-5059252407fa?auto=format&fit=crop&w=800&q=80",
+    name: "Izmir",
+  },
+] as const;
+
+export const allCities = ["Adana", "Antalya", "Bursa", "Eskisehir", "Gaziantep", "Mersin"] as const;
