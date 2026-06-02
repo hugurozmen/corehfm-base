@@ -7,6 +7,7 @@ import { cafinderTheme } from "@/features/cafinder/theme";
 const { colors, radius, spacing } = cafinderTheme;
 
 const pages = [
+  { href: "/(auth)/login", icon: "login", label: "0. Login flow" },
   { href: "/flow/splash", icon: "local-cafe", label: "1. Splash" },
   { href: "/flow/onboarding", icon: "coffee", label: "2. Onboarding" },
   { href: "/flow/phone", icon: "phone-iphone", label: "4. Telefon dogrulama" },
@@ -15,11 +16,15 @@ const pages = [
   { href: "/flow/city", icon: "location-city", label: "7. Sehir ve ilce" },
   { href: "/flow/atmosphere", icon: "wb-twilight", label: "9. Atmosfer" },
   { href: "/(tabs)/discover", icon: "explore", label: "Kesfet" },
+  { href: "/filters", icon: "tune", label: "Filtreler" },
   { href: "/discover-swipe", icon: "swipe", label: "11. Kesfet kaydir" },
   { href: "/(tabs)/map", icon: "map", label: "16. Harita" },
+  { href: "/(tabs)/lists", icon: "format-list-bulleted", label: "Listeler" },
   { href: "/saved", icon: "favorite", label: "17. Kaydedilenler" },
   { href: "/lists/new", icon: "playlist-add", label: "18. Liste olustur" },
+  { href: "/(tabs)/plan", icon: "calendar-today", label: "Planla" },
   { href: "/plan/new", icon: "group-add", label: "19. Grup plani" },
+  { href: "/(tabs)/profile", icon: "person", label: "Profil" },
   { href: "/profile/detail", icon: "person", label: "20. Profil detayi" },
   { href: "/place/petra", icon: "storefront", label: "Mekan detayi" },
 ] as const;

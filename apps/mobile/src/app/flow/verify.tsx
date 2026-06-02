@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { PrimaryButton, Screen } from "@/features/cafinder/components/CafinderUi";
@@ -8,6 +9,7 @@ const { colors, radius, spacing } = cafinderTheme;
 
 export default function VerifyScreen() {
   const router = useRouter();
+  const [resent, setResent] = useState(false);
 
   return (
     <Screen>
@@ -24,7 +26,9 @@ export default function VerifyScreen() {
             </View>
           ))}
         </View>
-        <Text style={styles.resend}>Kodu alamadiniz mi? Tekrar Gonder</Text>
+        <Pressable onPress={() => setResent(true)}>
+          <Text style={styles.resend}>{resent ? "Kod tekrar gonderildi" : "Kodu alamadiniz mi? Tekrar Gonder"}</Text>
+        </Pressable>
       </View>
       <PrimaryButton icon="arrow-forward" label="Dogrula" onPress={() => router.push("/flow/location")} />
     </Screen>

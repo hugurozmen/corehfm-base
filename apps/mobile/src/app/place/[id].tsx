@@ -1,4 +1,4 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,7 +23,15 @@ export default function PlaceDetailScreen() {
             <Pressable onPress={() => router.back()} style={styles.topButton}>
               <MaterialIcons color={colors.primary} name="arrow-back" size={22} />
             </Pressable>
-            <Pressable style={styles.topButton}>
+            <Pressable
+              onPress={() => {
+                void Share.share({
+                  message: `${cafe.name} - ${cafe.area}. ${cafe.address}`,
+                  title: cafe.name,
+                });
+              }}
+              style={styles.topButton}
+            >
               <MaterialIcons color={colors.primary} name="share" size={21} />
             </Pressable>
           </View>
@@ -66,8 +74,17 @@ export default function PlaceDetailScreen() {
         <Text style={styles.about}>{cafe.description}</Text>
 
         <View style={styles.actions}>
-          <PrimaryButton icon="bookmark" label="Listeye Ekle" variant="secondary" />
-          <PrimaryButton icon="event-available" label="Rezervasyon" />
+          <PrimaryButton
+            icon="bookmark"
+            label="Listeye Ekle"
+            onPress={() => router.push("/saved")}
+            variant="secondary"
+          />
+          <PrimaryButton
+            icon="event-available"
+            label="Rezervasyon"
+            onPress={() => router.push("/plan/new")}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

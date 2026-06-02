@@ -1,4 +1,4 @@
-import { useMemo, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../auth/auth-store";
 
@@ -208,6 +208,9 @@ export function SavedWebPage() {
 }
 
 export function NewListWebPage() {
+  const navigate = useNavigate();
+  const [privacy, setPrivacy] = useState<"private" | "public">("private");
+
   return (
     <Shell title="Yeni Liste">
       <form className="web-form">
@@ -216,10 +219,10 @@ export function NewListWebPage() {
         <label>Aciklama</label>
         <textarea placeholder="Bu liste hakkinda kisa bir bilgi verin..." />
         <div className="web-filter-row">
-          <button className="active" type="button">Gizli</button>
-          <button type="button">Herkese Acik</button>
+          <button className={privacy === "private" ? "active" : ""} onClick={() => setPrivacy("private")} type="button">Gizli</button>
+          <button className={privacy === "public" ? "active" : ""} onClick={() => setPrivacy("public")} type="button">Herkese Acik</button>
         </div>
-        <button type="button">Olustur</button>
+        <button onClick={() => navigate("/lists")} type="button">Olustur</button>
       </form>
     </Shell>
   );
@@ -250,19 +253,34 @@ export function PlanWebPage() {
 }
 
 export function NewPlanWebPage() {
+  const navigate = useNavigate();
+  const [selectedFriends, setSelectedFriends] = useState(["Zeynep Yilmaz", "Can Ozkan"]);
+
+  function toggleFriend(friend: string) {
+    setSelectedFriends((current) => (
+      current.includes(friend)
+        ? current.filter((item) => item !== friend)
+        : [...current, friend]
+    ));
+  }
+
   return (
     <Shell title="Yeni Plan">
       <div className="web-form">
         <label>Arkadas ara</label>
         <input placeholder="Arkadas ara..." />
-        {["Zeynep Yilmaz", "Can Ozkan", "Elif Demir"].map((friend, index) => (
+        {["Zeynep Yilmaz", "Can Ozkan", "Elif Demir"].map((friend) => (
           <div className="web-friend-row" key={friend}>
             <span>{friend.split(" ").map((part) => part[0]).join("")}</span>
             <strong>{friend}</strong>
-            <input defaultChecked={index < 2} type="checkbox" />
+            <input
+              checked={selectedFriends.includes(friend)}
+              onChange={() => toggleFriend(friend)}
+              type="checkbox"
+            />
           </div>
         ))}
-        <button type="button">Plani Tamamla</button>
+        <button onClick={() => navigate("/plan")} type="button">Plani Tamamla</button>
       </div>
     </Shell>
   );
@@ -303,6 +321,7 @@ export function ProfileDetailWebPage() {
 
 export function PlaceWebPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const cafe = cafes.find((item) => item.id === id) ?? cafes[0]!;
 
   return (
@@ -318,8 +337,8 @@ export function PlaceWebPage() {
           </div>
           <p>{cafe.text}</p>
           <div className="web-filter-row">
-            <button type="button">Listeye Ekle</button>
-            <button type="button">Rezervasyon</button>
+            <button onClick={() => navigate("/saved")} type="button">Listeye Ekle</button>
+            <button onClick={() => navigate("/plan/new")} type="button">Rezervasyon</button>
           </div>
         </div>
       </div>
@@ -328,18 +347,41 @@ export function PlaceWebPage() {
 }
 
 export function FiltersWebPage() {
+  const [atmosphere, setAtmosphere] = useState("Sessiz Calisma");
+  const [features, setFeatures] = useState(["Hizli Wi-Fi"]);
+
+  function toggleFeature(feature: string) {
+    setFeatures((current) => (
+      current.includes(feature)
+        ? current.filter((item) => item !== feature)
+        : [...current, feature]
+    ));
+  }
+
   return (
     <Shell title="Filtreler">
       <div className="web-grid three">
-        {["Sessiz Calisma", "Sosyal", "Manzarali", "Retro", "Modern"].map((item, index) => (
-          <article className={index === 0 ? "web-option active" : "web-option"} key={item}>
+        {["Sessiz Calisma", "Sosyal", "Manzarali", "Retro", "Modern"].map((item) => (
+          <button
+            className={atmosphere === item ? "web-option active" : "web-option"}
+            key={item}
+            onClick={() => setAtmosphere(item)}
+            type="button"
+          >
             {item}
-          </article>
+          </button>
         ))}
       </div>
       <div className="web-filter-row">
         {["Hizli Wi-Fi", "Acik Alan", "Hayvan Dostu", "Tatli", "Acik Olanlar"].map((item) => (
-          <button type="button" key={item}>{item}</button>
+          <button
+            className={features.includes(item) ? "active" : ""}
+            key={item}
+            onClick={() => toggleFeature(item)}
+            type="button"
+          >
+            {item}
+          </button>
         ))}
       </div>
     </Shell>
@@ -352,6 +394,7 @@ export function SwipeWebPage() {
   const [dragOffset, setDragOffset] = useState(0);
   const [message, setMessage] = useState("Kaydirma modu hazir.");
   const [stats, setStats] = useState({ liked: 0, saved: 0, skipped: 0 });
+  const dragStartRef = useRef<number | null>(null);
   const cafe = cafes[activeIndex % cafes.length]!;
   const nextCafe = cafes[(activeIndex + 1) % cafes.length]!;
   const dragIntent = useMemo(() => {
@@ -380,22 +423,24 @@ export function SwipeWebPage() {
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
+    dragStartRef.current = event.clientX;
     setDragStart(event.clientX);
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (dragStart === null) {
+    if (dragStartRef.current === null) {
       return;
     }
-    setDragOffset(Math.max(-160, Math.min(160, event.clientX - dragStart)));
+    setDragOffset(Math.max(-160, Math.min(160, event.clientX - dragStartRef.current)));
   };
 
   const handlePointerEnd = (event: PointerEvent<HTMLDivElement>) => {
-    if (dragStart === null) {
+    if (dragStartRef.current === null) {
       return;
     }
 
-    const finalOffset = event.clientX - dragStart;
+    const finalOffset = event.clientX - dragStartRef.current;
+    dragStartRef.current = null;
     if (finalOffset > 90) {
       advance("liked");
       return;
@@ -484,10 +529,26 @@ export function SwipeWebPage() {
 }
 
 export function ScreensWebPage() {
+  const screenLinks = [
+    ...flowPages,
+    ["Kesfet", "/discover"],
+    ["Filtreler", "/filters"],
+    ["Kaydirma", "/discover-swipe"],
+    ["Harita", "/map"],
+    ["Listeler", "/lists"],
+    ["Kaydedilenler", "/saved"],
+    ["Yeni Liste", "/lists/new"],
+    ["Planla", "/plan"],
+    ["Grup Plani", "/plan/new"],
+    ["Profil", "/profile"],
+    ["Profil Detayi", "/profile/detail"],
+    ["Mekan Detayi", "/place/petra"],
+  ] as const;
+
   return (
     <Shell title="Tum Ekranlar">
       <div className="web-grid three">
-        {[...flowPages, ["Kesfet", "/discover"], ["Harita", "/map"], ["Listeler", "/lists"], ["Kaydedilenler", "/saved"], ["Yeni Liste", "/lists/new"], ["Grup Plani", "/plan/new"], ["Profil Detayi", "/profile/detail"], ["Mekan Detayi", "/place/petra"]].map(([label, href]) => (
+        {screenLinks.map(([label, href]) => (
           <Link className="web-screen-link" key={href} to={href}>
             {label}
           </Link>

@@ -43,7 +43,9 @@ interface AppHeaderProps {
   title: string;
 }
 
-export function AppHeader({ actionIcon = "tune", eyebrow, onAction, subtitle, title }: AppHeaderProps) {
+export function AppHeader({ actionIcon, eyebrow, onAction, subtitle, title }: AppHeaderProps) {
+  const resolvedActionIcon = actionIcon ?? (onAction ? "tune" : undefined);
+
   return (
     <View style={styles.header}>
       <View style={styles.logoMark}>
@@ -60,7 +62,7 @@ export function AppHeader({ actionIcon = "tune", eyebrow, onAction, subtitle, ti
           </Text>
         ) : null}
       </View>
-      <IconButton icon={actionIcon} onPress={onAction} />
+      {resolvedActionIcon ? <IconButton icon={resolvedActionIcon} onPress={onAction} /> : null}
     </View>
   );
 }
@@ -72,35 +74,65 @@ interface IconButtonProps {
 }
 
 export function IconButton({ icon, onPress, tone = "light" }: IconButtonProps) {
+  const content = (
+    <MaterialIcons
+      color={tone === "dark" ? colors.surface : colors.primary}
+      name={icon}
+      size={22}
+    />
+  );
+
+  if (!onPress) {
+    return (
+      <View
+        accessibilityElementsHidden
+        importantForAccessibility="no"
+        style={[styles.iconButton, tone === "dark" ? styles.iconButtonDark : null]}
+      >
+        {content}
+      </View>
+    );
+  }
+
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
       style={[styles.iconButton, tone === "dark" ? styles.iconButtonDark : null]}
     >
-      <MaterialIcons
-        color={tone === "dark" ? colors.surface : colors.primary}
-        name={icon}
-        size={22}
-      />
+      {content}
     </Pressable>
   );
 }
 
 interface SearchBarProps {
+  onChangeText?: (value: string) => void;
+  onFilterPress?: () => void;
   placeholder?: string;
+  value?: string;
 }
 
-export function SearchBar({ placeholder = "Mekan veya mutfak ara..." }: SearchBarProps) {
+export function SearchBar({
+  onChangeText,
+  onFilterPress,
+  placeholder = "Mekan veya mutfak ara...",
+  value,
+}: SearchBarProps) {
   return (
     <View style={styles.searchBar}>
       <MaterialIcons color={colors.muted} name="search" size={21} />
       <TextInput
+        onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={colors.muted}
         style={styles.searchInput}
+        value={value}
       />
-      <MaterialIcons color={colors.primary} name="tune" size={20} />
+      {onFilterPress ? (
+        <Pressable accessibilityRole="button" onPress={onFilterPress} style={styles.searchFilterButton}>
+          <MaterialIcons color={colors.primary} name="tune" size={20} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -109,11 +141,12 @@ interface ChipProps {
   active?: boolean;
   icon?: IconName;
   label: string;
+  onPress?: () => void;
 }
 
-export function Chip({ active, icon, label }: ChipProps) {
-  return (
-    <Pressable style={[styles.chip, active ? styles.chipActive : null]}>
+export function Chip({ active, icon, label, onPress }: ChipProps) {
+  const content = (
+    <>
       {icon ? (
         <MaterialIcons
           color={active ? colors.surface : colors.primary}
@@ -122,20 +155,42 @@ export function Chip({ active, icon, label }: ChipProps) {
         />
       ) : null}
       <Text style={[styles.chipText, active ? styles.chipTextActive : null]}>{label}</Text>
+    </>
+  );
+
+  if (!onPress) {
+    return <View style={[styles.chip, active ? styles.chipActive : null]}>{content}</View>;
+  }
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected: Boolean(active) }}
+      onPress={onPress}
+      style={[styles.chip, active ? styles.chipActive : null]}
+    >
+      {content}
     </Pressable>
   );
 }
 
 interface SectionTitleProps {
   action?: string;
+  onActionPress?: () => void;
   title: string;
 }
 
-export function SectionTitle({ action, title }: SectionTitleProps) {
+export function SectionTitle({ action, onActionPress, title }: SectionTitleProps) {
   return (
     <View style={styles.sectionTitle}>
       <Text style={styles.sectionHeading}>{title}</Text>
-      {action ? <Text style={styles.sectionAction}>{action}</Text> : null}
+      {action && onActionPress ? (
+        <Pressable accessibilityRole="button" onPress={onActionPress}>
+          <Text style={styles.sectionAction}>{action}</Text>
+        </Pressable>
+      ) : action ? (
+        <Text style={styles.sectionAction}>{action}</Text>
+      ) : null}
     </View>
   );
 }
@@ -219,11 +274,12 @@ export function HeroCafeCard({ cafe }: HeroCafeCardProps) {
 
 interface ListCardProps {
   item: CafeList;
+  onPress?: () => void;
 }
 
-export function ListCard({ item }: ListCardProps) {
-  return (
-    <View style={styles.listCard}>
+export function ListCard({ item, onPress }: ListCardProps) {
+  const content = (
+    <>
       <Image source={{ uri: item.imageUrl }} style={styles.listImage} />
       <View style={styles.listCopy}>
         <Text style={styles.listCount}>{item.count} mekan</Text>
@@ -233,7 +289,17 @@ export function ListCard({ item }: ListCardProps) {
         </Text>
       </View>
       <MaterialIcons color={colors.primary} name="chevron-right" size={24} />
-    </View>
+    </>
+  );
+
+  if (!onPress) {
+    return <View style={styles.listCard}>{content}</View>;
+  }
+
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={styles.listCard}>
+      {content}
+    </Pressable>
   );
 }
 
@@ -555,6 +621,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     minWidth: 0,
+  },
+  searchFilterButton: {
+    alignItems: "center",
+    borderRadius: 999,
+    height: 36,
+    justifyContent: "center",
+    width: 36,
   },
   secondaryButton: {
     backgroundColor: colors.surfaceWarm,

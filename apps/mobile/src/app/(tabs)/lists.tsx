@@ -36,16 +36,20 @@ export default function ListsScreen() {
         <IconButton icon="chevron-right" />
       </Pressable>
 
-      <SectionTitle action="Yeni liste" title="Ozel listeler" />
+      <SectionTitle
+        action="Yeni liste"
+        onActionPress={() => router.push("/lists/new")}
+        title="Ozel listeler"
+      />
       {curatedLists.map((item) => (
-        <ListCard item={item} key={item.id} />
+        <ListCard item={item} key={item.id} onPress={() => router.push("/saved")} />
       ))}
 
-      <SectionTitle action="Duzenle" title="Favoriler" />
+      <SectionTitle action="Duzenle" onActionPress={() => router.push("/saved")} title="Favoriler" />
       <CafeCard cafe={cafes[0]} compact />
       <CafeCard cafe={cafes[2]} compact />
 
-      <SectionTitle action="Tumunu gor" title="Gidilecekler" />
+      <SectionTitle action="Tumunu gor" onActionPress={() => router.push("/saved")} title="Gidilecekler" />
       <View style={styles.savedGrid}>
         {cafes.slice(1, 5).map((cafe) => (
           <Pressable key={cafe.id} onPress={() => router.push("/saved")} style={styles.savedTile}>

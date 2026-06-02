@@ -1,13 +1,23 @@
 import { Image, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import { AppHeader, PrimaryButton, Screen, SettingRow } from "@/features/cafinder/components/CafinderUi";
 import { cafinderTheme, shadow } from "@/features/cafinder/theme";
+import { useAuthStore } from "@/features/auth/store";
 
 const { colors, radius, spacing } = cafinderTheme;
 
 export default function ProfileDetailScreen() {
+  const router = useRouter();
+  const logout = useAuthStore((state) => state.logout);
+
+  function handleLogout() {
+    logout();
+    router.replace("/(auth)/login");
+  }
+
   return (
     <Screen>
-      <AppHeader actionIcon="more-vert" subtitle="Kadikoy, Istanbul" title="Profil Detayi" />
+      <AppHeader actionIcon="arrow-back" onAction={() => router.back()} subtitle="Kadikoy, Istanbul" title="Profil Detayi" />
       <View style={styles.card}>
         <Image
           source={{
@@ -17,17 +27,17 @@ export default function ProfileDetailScreen() {
         />
         <Text style={styles.name}>Ayse Yilmaz</Text>
         <Text style={styles.location}>Kadikoy, Istanbul</Text>
-        <PrimaryButton icon="edit" label="Profili Duzenle" variant="secondary" />
+        <PrimaryButton icon="edit" label="Profili Duzenle" onPress={() => router.push("/(tabs)/profile")} variant="secondary" />
       </View>
       <View style={styles.stats}>
         <Stat label="Gidilen Yerler" value="42" />
         <Stat label="Listeler" value="8" />
         <Stat label="Rozetler" value="15" />
       </View>
-      <SettingRow icon="person" label="Hesap" />
-      <SettingRow icon="notifications" label="Bildirimler" />
-      <SettingRow icon="lock" label="Gizlilik" />
-      <SettingRow icon="logout" label="Cikis Yap" />
+      <SettingRow icon="person" label="Hesap" onPress={() => router.push("/profile/detail")} />
+      <SettingRow icon="notifications" label="Bildirimler" onPress={() => router.push("/screens")} />
+      <SettingRow icon="lock" label="Gizlilik" onPress={() => router.push("/profile/detail")} />
+      <SettingRow icon="logout" label="Cikis Yap" onPress={handleLogout} />
     </Screen>
   );
 }
