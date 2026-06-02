@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Animated, Image, PanResponder, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -17,15 +17,17 @@ const actionCopy: Record<SwipeAction, { icon: keyof typeof MaterialIcons.glyphMa
 };
 
 function intentFromGesture(dx: number, dy: number) {
-  if (dy < -110) {
+  const absDx = Math.abs(dx);
+
+  if (dy < -92 && absDx < 110) {
     return actionCopy.saved.intent;
   }
 
-  if (dx > 86) {
+  if (dx > 64) {
     return actionCopy.liked.intent;
   }
 
-  if (dx < -86) {
+  if (dx < -64) {
     return actionCopy.skipped.intent;
   }
 
@@ -43,17 +45,17 @@ export default function DiscoverSwipeScreen() {
   const cafe = cafes[activeIndex % cafes.length] ?? cafes[0]!;
   const nextCafe = cafes[(activeIndex + 1) % cafes.length] ?? cafes[0]!;
 
-  function resetCard() {
+  const resetCard = useCallback(() => {
     Animated.spring(position, {
       friction: 7,
       toValue: { x: 0, y: 0 },
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start(() => {
       setDragIntent("");
     });
-  }
+  }, [position]);
 
-  function completeAction(action: SwipeAction, toValue: { x: number; y: number }) {
+  const completeAction = useCallback((action: SwipeAction, toValue: { x: number; y: number }) => {
     if (isAnimating.current) {
       return;
     }
@@ -61,9 +63,9 @@ export default function DiscoverSwipeScreen() {
     isAnimating.current = true;
     setDragIntent(actionCopy[action].intent);
     Animated.timing(position, {
-      duration: 190,
+      duration: 180,
       toValue,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start(() => {
       setStats((current) => ({ ...current, [action]: current[action] + 1 }));
       setMessage(`${cafe.name} ${actionCopy[action].past}. Siradaki: ${nextCafe.name}.`);
@@ -72,36 +74,47 @@ export default function DiscoverSwipeScreen() {
       setDragIntent("");
       isAnimating.current = false;
     });
-  }
+  }, [cafe.name, nextCafe.name, position]);
 
-  const panResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: (_event, gesture) => Math.abs(gesture.dx) > 8 || Math.abs(gesture.dy) > 8,
+  const panResponder = useMemo(() => PanResponder.create({
+    onMoveShouldSetPanResponder: (_event, gesture) => Math.abs(gesture.dx) > 4 || Math.abs(gesture.dy) > 4,
+    onMoveShouldSetPanResponderCapture: (_event, gesture) => Math.abs(gesture.dx) > 4 || Math.abs(gesture.dy) > 4,
+    onPanResponderGrant: () => {
+      position.stopAnimation();
+      position.setOffset({ x: 0, y: 0 });
+      position.setValue({ x: 0, y: 0 });
+    },
     onPanResponderMove: (_event, gesture) => {
-      const y = Math.max(-90, Math.min(45, gesture.dy));
+      const y = Math.max(-96, Math.min(48, gesture.dy));
 
       position.setValue({ x: gesture.dx, y });
       setDragIntent(intentFromGesture(gesture.dx, gesture.dy));
     },
     onPanResponderRelease: (_event, gesture) => {
-      if (gesture.dy < -120) {
+      const absDx = Math.abs(gesture.dx);
+
+      if (gesture.dy < -96 && absDx < 120) {
         completeAction("saved", { x: 0, y: -520 });
         return;
       }
 
-      if (gesture.dx > 96) {
+      if (gesture.dx > 72 || gesture.vx > 0.55) {
         completeAction("liked", { x: 430, y: gesture.dy });
         return;
       }
 
-      if (gesture.dx < -96) {
+      if (gesture.dx < -72 || gesture.vx < -0.55) {
         completeAction("skipped", { x: -430, y: gesture.dy });
         return;
       }
 
       resetCard();
     },
+    onPanResponderTerminate: resetCard,
+    onPanResponderTerminationRequest: () => false,
     onStartShouldSetPanResponder: () => true,
-  });
+    onStartShouldSetPanResponderCapture: () => true,
+  }), [completeAction, position, resetCard]);
 
   const rotate = position.x.interpolate({
     inputRange: [-180, 0, 180],
