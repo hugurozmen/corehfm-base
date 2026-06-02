@@ -1,4 +1,5 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { AppHeader, PrimaryButton, Screen, SearchBar, SectionTitle } from "@/features/cafinder/components/CafinderUi";
@@ -9,30 +10,40 @@ const { colors, radius, spacing } = cafinderTheme;
 
 export default function CitySelectionScreen() {
   const router = useRouter();
+  const [selectedCity, setSelectedCity] = useState("Istanbul");
+  const [query, setQuery] = useState("");
 
   return (
     <Screen>
-      <AppHeader actionIcon="close" subtitle="Istanbul varsayilan secildi" title="Sehir Secimi" />
-      <SearchBar placeholder="Sehir veya ilce ara..." />
+      <AppHeader actionIcon="close" onAction={() => router.back()} subtitle={`${selectedCity} secildi`} title="Sehir Secimi" />
+      <SearchBar onChangeText={setQuery} placeholder="Sehir veya ilce ara..." value={query} />
       <SectionTitle title="Populer sehirler" />
       <View style={styles.cityList}>
         {popularCities.map((city) => (
-          <View key={city.name} style={styles.cityCard}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: selectedCity === city.name }}
+            key={city.name}
+            onPress={() => setSelectedCity(city.name)}
+            style={[styles.cityCard, selectedCity === city.name ? styles.cityCardActive : null]}
+          >
             <Image source={{ uri: city.imageUrl }} style={styles.cityImage} />
             <View style={styles.cityCopy}>
               <Text style={styles.cityName}>{city.name}</Text>
               <Text style={styles.cityDistricts}>{city.districts.join(", ")}</Text>
             </View>
             <MaterialIcons color={colors.primary} name="chevron-right" size={24} />
-          </View>
+          </Pressable>
         ))}
       </View>
       <SectionTitle title="Tum sehirler" />
       <View style={styles.allCities}>
         {allCities.map((city) => (
-          <Text key={city} style={styles.cityChip}>
-            {city}
-          </Text>
+          <Pressable key={city} onPress={() => setSelectedCity(city)}>
+            <Text style={[styles.cityChip, selectedCity === city ? styles.cityChipActive : null]}>
+              {city}
+            </Text>
+          </Pressable>
         ))}
       </View>
       <PrimaryButton icon="arrow-forward" label="Devam Et" onPress={() => router.push("/flow/atmosphere")} />
@@ -57,6 +68,9 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     ...shadow,
   },
+  cityCardActive: {
+    borderColor: colors.primary,
+  },
   cityChip: {
     backgroundColor: colors.surfaceWarm,
     borderRadius: 999,
@@ -65,6 +79,10 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+  },
+  cityChipActive: {
+    backgroundColor: colors.primary,
+    color: colors.surface,
   },
   cityCopy: {
     flex: 1,

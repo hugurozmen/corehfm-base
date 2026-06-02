@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { AppHeader, PrimaryButton, Screen } from "@/features/cafinder/components/CafinderUi";
@@ -11,25 +12,36 @@ const { colors, radius, spacing } = cafinderTheme;
 export default function AtmosphereScreen() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
+  const [selectedMood, setSelectedMood] = useState<string>(atmosphereOptions[0]!.title);
 
   return (
     <Screen>
       <AppHeader subtitle="Sana uygun oneriler icin" title="Nasil bir ortam ariyorsun?" />
       <Text style={styles.copy}>Modunu sec, Cafinder sana en uygun kahve rotalarini one cikarir.</Text>
       <View style={styles.grid}>
-        {atmosphereOptions.map((option, index) => (
-          <View key={option.title} style={[styles.card, index === 0 ? styles.cardActive : null]}>
+        {atmosphereOptions.map((option) => {
+          const active = selectedMood === option.title;
+
+          return (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+            key={option.title}
+            onPress={() => setSelectedMood(option.title)}
+            style={[styles.card, active ? styles.cardActive : null]}
+          >
             <MaterialIcons
-              color={index === 0 ? colors.surface : colors.primary}
+              color={active ? colors.surface : colors.primary}
               name={option.icon}
               size={26}
             />
-            <Text style={[styles.title, index === 0 ? styles.titleActive : null]}>{option.title}</Text>
-            <Text style={[styles.subtitle, index === 0 ? styles.subtitleActive : null]}>
+            <Text style={[styles.title, active ? styles.titleActive : null]}>{option.title}</Text>
+            <Text style={[styles.subtitle, active ? styles.subtitleActive : null]}>
               {option.subtitle}
             </Text>
-          </View>
-        ))}
+          </Pressable>
+        );
+        })}
       </View>
       <PrimaryButton
         icon="arrow-forward"

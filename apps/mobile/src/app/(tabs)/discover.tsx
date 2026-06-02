@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -15,10 +16,21 @@ import { cafes } from "@/features/cafinder/data/cafinder-data";
 import { cafinderTheme, shadow } from "@/features/cafinder/theme";
 
 const { colors, radius, spacing } = cafinderTheme;
+const filters = [
+  { icon: undefined, label: "Tumu" },
+  { icon: "new-releases", label: "Yeni" },
+  { icon: "whatshot", label: "Populer" },
+  { icon: "laptop-mac", label: "Calisma Alani" },
+  { icon: "deck", label: "Bahceli" },
+  { icon: "pets", label: "Pet Friendly" },
+] as const;
 
 export default function DiscoverScreen() {
   const router = useRouter();
-  const [petra, espresso, kronotrop, norm, vienna] = cafes;
+  const [activeFilter, setActiveFilter] = useState("Tumu");
+  const [previewIndex, setPreviewIndex] = useState(4);
+  const [petra, espresso, kronotrop, norm] = cafes;
+  const previewCafe = cafes[previewIndex % cafes.length] ?? cafes[0]!;
 
   return (
     <Screen>
@@ -28,16 +40,19 @@ export default function DiscoverScreen() {
         subtitle="Bugun hangi moddasın?"
         title="Cafinder"
       />
-      <SearchBar />
+      <SearchBar onFilterPress={() => router.push("/filters")} />
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.chipRow}>
-          <Chip active label="Tumu" />
-          <Chip icon="new-releases" label="Yeni" />
-          <Chip icon="whatshot" label="Populer" />
-          <Chip icon="laptop-mac" label="Calisma Alani" />
-          <Chip icon="deck" label="Bahceli" />
-          <Chip icon="pets" label="Pet Friendly" />
+          {filters.map((filter) => (
+            <Chip
+              active={activeFilter === filter.label}
+              icon={filter.icon}
+              key={filter.label}
+              label={filter.label}
+              onPress={() => setActiveFilter(filter.label)}
+            />
+          ))}
         </View>
       </ScrollView>
 
@@ -61,11 +76,19 @@ export default function DiscoverScreen() {
         </View>
       </View>
 
-      <SectionTitle action="Haritada gor" title="Senin icin secildi" />
+      <SectionTitle
+        action="Haritada gor"
+        onActionPress={() => router.push("/(tabs)/map")}
+        title="Senin icin secildi"
+      />
       <CafeCard cafe={espresso} />
       <CafeCard cafe={kronotrop} />
 
-      <SectionTitle action="Tam ekran" title="Kaydirarak kesfet" />
+      <SectionTitle
+        action="Tam ekran"
+        onActionPress={() => router.push("/discover-swipe")}
+        title="Kaydirarak kesfet"
+      />
       <PrimaryButton
         icon="swipe"
         label="Kaydirma Modunu Ac"
@@ -73,17 +96,17 @@ export default function DiscoverScreen() {
         variant="secondary"
       />
       <View style={styles.swipeCard}>
-        <CafeCard cafe={vienna} />
+        <CafeCard cafe={previewCafe} />
         <View style={styles.swipeActions}>
-          <View style={styles.roundAction}>
+          <Pressable onPress={() => setPreviewIndex((current) => current + 1)} style={styles.roundAction}>
             <MaterialIcons color={colors.danger} name="close" size={25} />
-          </View>
-          <View style={[styles.roundAction, styles.roundActionPrimary]}>
+          </Pressable>
+          <Pressable onPress={() => router.push("/saved")} style={[styles.roundAction, styles.roundActionPrimary]}>
             <MaterialIcons color={colors.surface} name="bookmark" size={24} />
-          </View>
-          <View style={styles.roundAction}>
+          </Pressable>
+          <Pressable onPress={() => setPreviewIndex((current) => current + 1)} style={styles.roundAction}>
             <MaterialIcons color={colors.primary} name="favorite" size={25} />
-          </View>
+          </Pressable>
         </View>
       </View>
 

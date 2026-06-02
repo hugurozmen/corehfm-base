@@ -19,6 +19,11 @@ export default function ProfileScreen() {
   const email = useAuthStore((state) => state.email);
   const logout = useAuthStore((state) => state.logout);
 
+  function handleLogout() {
+    logout();
+    router.replace("/(auth)/login");
+  }
+
   return (
     <Screen>
       <AppHeader
@@ -68,13 +73,13 @@ export default function ProfileScreen() {
       <SectionTitle title="Hesap ayarlari" />
       <View style={styles.settings}>
         <SettingRow icon="person" label="Hesap" onPress={() => router.push("/profile/detail")} />
-        <SettingRow icon="notifications" label="Bildirimler" />
+        <SettingRow icon="notifications" label="Bildirimler" onPress={() => router.push("/screens")} />
         <SettingRow icon="restaurant-menu" label="Diyet tercihleri" onPress={() => router.push("/filters")} />
-        <SettingRow icon="lock" label="Gizlilik" />
+        <SettingRow icon="lock" label="Gizlilik" onPress={() => router.push("/profile/detail")} />
         <SettingRow icon="help" label="Tum mockup ekranlari" onPress={() => router.push("/screens")} />
       </View>
 
-      <PrimaryButton icon="logout" label="Cikis Yap" onPress={logout} variant="ghost" />
+      <PrimaryButton icon="logout" label="Cikis Yap" onPress={handleLogout} variant="ghost" />
     </Screen>
   );
 }

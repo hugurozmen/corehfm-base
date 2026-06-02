@@ -1,4 +1,5 @@
-import { Image, StyleSheet, Text, TextInput, View } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { AppHeader, PrimaryButton, Screen, SectionTitle } from "@/features/cafinder/components/CafinderUi";
@@ -10,6 +11,17 @@ const { colors, radius, spacing } = cafinderTheme;
 export default function NewPlanScreen() {
   const router = useRouter();
   const cafe = cafes[0]!;
+  const [selectedFriendIds, setSelectedFriendIds] = useState(
+    friends.filter((friend) => friend.selected).map((friend) => friend.id),
+  );
+
+  function toggleFriend(id: string) {
+    setSelectedFriendIds((current) => (
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id]
+    ));
+  }
 
   return (
     <Screen>
@@ -26,8 +38,17 @@ export default function NewPlanScreen() {
         <MaterialIcons color={colors.muted} name="search" size={20} />
         <TextInput placeholder="Arkadas ara..." placeholderTextColor={colors.muted} style={styles.searchInput} />
       </View>
-      {friends.map((friend) => (
-        <View key={friend.id} style={styles.friendRow}>
+      {friends.map((friend) => {
+        const selected = selectedFriendIds.includes(friend.id);
+
+        return (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ selected }}
+          key={friend.id}
+          onPress={() => toggleFriend(friend.id)}
+          style={styles.friendRow}
+        >
           {friend.imageUrl ? (
             <Image source={{ uri: friend.imageUrl }} style={styles.avatar} />
           ) : (
@@ -39,11 +60,12 @@ export default function NewPlanScreen() {
             <Text style={styles.friendName}>{friend.name}</Text>
             <Text style={styles.friendNote}>{friend.note}</Text>
           </View>
-          <View style={[styles.checkbox, friend.selected ? styles.checkboxSelected : null]}>
-            {friend.selected ? <MaterialIcons color={colors.surface} name="check" size={18} /> : null}
+          <View style={[styles.checkbox, selected ? styles.checkboxSelected : null]}>
+            {selected ? <MaterialIcons color={colors.surface} name="check" size={18} /> : null}
           </View>
-        </View>
-      ))}
+        </Pressable>
+      );
+      })}
       <PrimaryButton icon="check-circle" label="Plani Tamamla" onPress={() => router.push("/(tabs)/plan")} />
     </Screen>
   );

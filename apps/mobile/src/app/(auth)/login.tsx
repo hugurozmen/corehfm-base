@@ -124,6 +124,12 @@ interface PhoneStepProps {
 }
 
 function PhoneStep({ phone, setPhone }: PhoneStepProps) {
+  function appendDigit(key: string) {
+    const digit = key[0] ?? "";
+
+    setPhone(`${phone}${digit}`.slice(0, 10));
+  }
+
   return (
     <View style={styles.panel}>
       <MaterialIcons color={colors.primary} name="phone-iphone" size={34} />
@@ -147,7 +153,7 @@ function PhoneStep({ phone, setPhone }: PhoneStepProps) {
       </View>
       <View style={styles.keypad}>
         {["1", "2 ABC", "3 DEF", "4 GHI", "5 JKL", "6 MNO", "7 PQRS", "8 TUV", "9 WXYZ", "0"].map((key) => (
-          <Pressable key={key} style={styles.key}>
+          <Pressable key={key} onPress={() => appendDigit(key)} style={styles.key}>
             <Text style={styles.keyText}>{key}</Text>
           </Pressable>
         ))}
@@ -157,6 +163,8 @@ function PhoneStep({ phone, setPhone }: PhoneStepProps) {
 }
 
 function VerifyStep() {
+  const [resent, setResent] = useState(false);
+
   return (
     <View style={styles.panel}>
       <MaterialIcons color={colors.primary} name="dialpad" size={34} />
@@ -169,7 +177,9 @@ function VerifyStep() {
           </View>
         ))}
       </View>
-      <Text style={styles.resend}>Kodu alamadin mi? Tekrar gonder</Text>
+      <Pressable onPress={() => setResent(true)}>
+        <Text style={styles.resend}>{resent ? "Kod tekrar gonderildi" : "Kodu alamadin mi? Tekrar gonder"}</Text>
+      </Pressable>
     </View>
   );
 }
@@ -204,33 +214,42 @@ function LocationStep({ onLater }: LocationStepProps) {
 }
 
 function MoodStep() {
+  const [city, setCity] = useState("Istanbul");
+  const [mood, setMood] = useState<string>(atmosphereOptions[0]!.title);
+
   return (
     <View style={styles.panel}>
       <Text style={styles.title}>Nasil bir ortam ariyorsun?</Text>
       <Text style={styles.description}>Sana en uygun kafeleri bulmamiz icin modunu sec.</Text>
       <View style={styles.cityRow}>
-        {["Istanbul", "Kadikoy", "Besiktas"].map((city, index) => (
-          <Text key={city} style={[styles.cityChip, index === 0 ? styles.cityChipActive : null]}>
-            {city}
-          </Text>
+        {["Istanbul", "Kadikoy", "Besiktas"].map((item) => (
+          <Pressable key={item} onPress={() => setCity(item)}>
+            <Text style={[styles.cityChip, city === item ? styles.cityChipActive : null]}>
+              {item}
+            </Text>
+          </Pressable>
         ))}
       </View>
       <View style={styles.moodGrid}>
-        {atmosphereOptions.map((option, index) => (
-          <View key={option.title} style={[styles.moodCard, index === 0 ? styles.moodCardActive : null]}>
+        {atmosphereOptions.map((option) => {
+          const active = mood === option.title;
+
+          return (
+          <Pressable key={option.title} onPress={() => setMood(option.title)} style={[styles.moodCard, active ? styles.moodCardActive : null]}>
             <MaterialIcons
-              color={index === 0 ? colors.surface : colors.primary}
+              color={active ? colors.surface : colors.primary}
               name={option.icon}
               size={24}
             />
-            <Text style={[styles.moodTitle, index === 0 ? styles.moodTitleActive : null]}>
+            <Text style={[styles.moodTitle, active ? styles.moodTitleActive : null]}>
               {option.title}
             </Text>
-            <Text style={[styles.moodSubtitle, index === 0 ? styles.moodSubtitleActive : null]}>
+            <Text style={[styles.moodSubtitle, active ? styles.moodSubtitleActive : null]}>
               {option.subtitle}
             </Text>
-          </View>
-        ))}
+          </Pressable>
+        );
+        })}
       </View>
     </View>
   );

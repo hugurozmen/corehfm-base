@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -9,6 +10,16 @@ const { colors, radius, spacing } = cafinderTheme;
 
 export default function NewListScreen() {
   const router = useRouter();
+  const [privacy, setPrivacy] = useState<"private" | "public">("private");
+  const [selectedPlaceIds, setSelectedPlaceIds] = useState<string[]>([cafes[0]!.id, cafes[1]!.id]);
+
+  function togglePlace(id: string) {
+    setSelectedPlaceIds((current) => (
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id]
+    ));
+  }
 
   return (
     <Screen>
@@ -30,21 +41,43 @@ export default function NewListScreen() {
       </View>
       <SectionTitle title="Gizlilik" />
       <View style={styles.privacyRow}>
-        <Text style={[styles.privacyButton, styles.privacyButtonActive]}>Gizli</Text>
-        <Text style={styles.privacyButton}>Herkese Acik</Text>
+        <PrivacyButton active={privacy === "private"} label="Gizli" onPress={() => setPrivacy("private")} />
+        <PrivacyButton active={privacy === "public"} label="Herkese Acik" onPress={() => setPrivacy("public")} />
       </View>
       <SectionTitle action="Ara" title="Mekan Ekle" />
-      {cafes.slice(0, 3).map((cafe, index) => (
+      {cafes.slice(0, 3).map((cafe) => {
+        const selected = selectedPlaceIds.includes(cafe.id);
+
+        return (
         <View key={cafe.id} style={styles.placeRow}>
-          <Pressable style={styles.removeButton}>
-            <MaterialIcons color={index < 2 ? colors.danger : colors.primary} name={index < 2 ? "remove" : "add"} size={20} />
+          <Pressable
+            accessibilityLabel={selected ? `${cafe.name} kaldir` : `${cafe.name} ekle`}
+            accessibilityRole="button"
+            onPress={() => togglePlace(cafe.id)}
+            style={styles.removeButton}
+          >
+            <MaterialIcons color={selected ? colors.danger : colors.primary} name={selected ? "remove" : "add"} size={20} />
           </Pressable>
           <Image source={{ uri: cafe.imageUrl }} style={styles.placeImage} />
           <Text style={styles.placeName}>{cafe.name}</Text>
         </View>
-      ))}
+        );
+      })}
       <PrimaryButton icon="check" label="Olustur" onPress={() => router.push("/(tabs)/lists")} />
     </Screen>
+  );
+}
+
+function PrivacyButton({ active, label, onPress }: { active: boolean; label: string; onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      onPress={onPress}
+      style={[styles.privacyButton, active ? styles.privacyButtonActive : null]}
+    >
+      <Text style={[styles.privacyButtonText, active ? styles.privacyButtonTextActive : null]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -93,19 +126,25 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   privacyButton: {
+    alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: radius.lg,
     borderWidth: 1,
-    color: colors.primary,
     flex: 1,
-    fontSize: 14,
-    fontWeight: "900",
+    justifyContent: "center",
     padding: spacing.md,
-    textAlign: "center",
   },
   privacyButtonActive: {
     backgroundColor: colors.primary,
+  },
+  privacyButtonText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: "900",
+    textAlign: "center",
+  },
+  privacyButtonTextActive: {
     color: colors.surface,
   },
   privacyRow: {

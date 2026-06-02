@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { AppHeader, Chip, PrimaryButton, Screen, SectionTitle } from "@/features/cafinder/components/CafinderUi";
@@ -6,42 +7,82 @@ import { atmosphereOptions } from "@/features/cafinder/data/cafinder-data";
 import { cafinderTheme } from "@/features/cafinder/theme";
 
 const { colors, radius, spacing } = cafinderTheme;
+const featureFilters = [
+  { icon: "wifi", label: "Hizli Wi-Fi" },
+  { icon: "deck", label: "Acik Alan" },
+  { icon: "pets", label: "Hayvan Dostu" },
+  { icon: "restaurant-menu", label: "Tatli" },
+  { icon: "schedule", label: "Acik Olanlar" },
+] as const;
 
 export default function FiltersScreen() {
   const router = useRouter();
+  const [atmosphere, setAtmosphere] = useState<string>(atmosphereOptions[0]!.title);
+  const [features, setFeatures] = useState<string[]>(["Hizli Wi-Fi"]);
+  const [priceRange, setPriceRange] = useState("₺₺");
+
+  function toggleFeature(label: string) {
+    setFeatures((current) => (
+      current.includes(label)
+        ? current.filter((item) => item !== label)
+        : [...current, label]
+    ));
+  }
 
   return (
     <Screen>
       <AppHeader actionIcon="close" onAction={() => router.back()} subtitle="Sonuclari incelt" title="Filtreler" />
       <SectionTitle title="Atmosfer" />
       <View style={styles.grid}>
-        {atmosphereOptions.map((option, index) => (
-          <View key={option.title} style={[styles.option, index === 0 ? styles.optionActive : null]}>
+        {atmosphereOptions.map((option) => {
+          const active = atmosphere === option.title;
+
+          return (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+            key={option.title}
+            onPress={() => setAtmosphere(option.title)}
+            style={[styles.option, active ? styles.optionActive : null]}
+          >
             <MaterialIcons
-              color={index === 0 ? colors.surface : colors.primary}
+              color={active ? colors.surface : colors.primary}
               name={option.icon}
               size={22}
             />
-            <Text style={[styles.optionTitle, index === 0 ? styles.optionTitleActive : null]}>
+            <Text style={[styles.optionTitle, active ? styles.optionTitleActive : null]}>
               {option.title}
             </Text>
-          </View>
-        ))}
+          </Pressable>
+        );
+        })}
       </View>
       <SectionTitle title="Ozellikler" />
       <View style={styles.chips}>
-        <Chip active icon="wifi" label="Hizli Wi-Fi" />
-        <Chip icon="deck" label="Acik Alan" />
-        <Chip icon="pets" label="Hayvan Dostu" />
-        <Chip icon="restaurant-menu" label="Tatli" />
-        <Chip icon="schedule" label="Acik Olanlar" />
+        {featureFilters.map((feature) => (
+          <Chip
+            active={features.includes(feature.label)}
+            icon={feature.icon}
+            key={feature.label}
+            label={feature.label}
+            onPress={() => toggleFeature(feature.label)}
+          />
+        ))}
       </View>
       <SectionTitle title="Fiyat araligi" />
       <View style={styles.priceRow}>
-        {["₺", "₺₺", "₺₺₺"].map((price, index) => (
-          <Text key={price} style={[styles.price, index === 1 ? styles.priceActive : null]}>
+        {["₺", "₺₺", "₺₺₺"].map((price) => (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: priceRange === price }}
+            key={price}
+            onPress={() => setPriceRange(price)}
+            style={[styles.price, priceRange === price ? styles.priceActive : null]}
+          >
+          <Text style={[styles.priceText, priceRange === price ? styles.priceTextActive : null]}>
             {price}
           </Text>
+          </Pressable>
         ))}
       </View>
       <PrimaryButton icon="search" label="Sonuclari Goster" onPress={() => router.push("/(tabs)/discover")} />
@@ -86,23 +127,29 @@ const styles = StyleSheet.create({
     color: colors.surface,
   },
   price: {
+    alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: radius.lg,
     borderWidth: 1,
-    color: colors.primary,
     flex: 1,
-    fontSize: 20,
-    fontWeight: "900",
+    justifyContent: "center",
     padding: spacing.md,
-    textAlign: "center",
   },
   priceActive: {
     backgroundColor: colors.primary,
-    color: colors.surface,
   },
   priceRow: {
     flexDirection: "row",
     gap: spacing.sm,
+  },
+  priceText: {
+    color: colors.primary,
+    fontSize: 20,
+    fontWeight: "900",
+    textAlign: "center",
+  },
+  priceTextActive: {
+    color: colors.surface,
   },
 });

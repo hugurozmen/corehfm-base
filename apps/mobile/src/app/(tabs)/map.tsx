@@ -1,15 +1,25 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { AppHeader, CafeCard, Chip, Screen, SearchBar } from "@/features/cafinder/components/CafinderUi";
 import { cafes } from "@/features/cafinder/data/cafinder-data";
 import { cafinderTheme, shadow } from "@/features/cafinder/theme";
 
 const { colors, radius, spacing } = cafinderTheme;
+const mapFilters = [
+  { icon: "schedule", label: "Acik Olanlar" },
+  { icon: "local-cafe", label: "Kahveciler" },
+  { icon: "laptop-mac", label: "Calisma" },
+] as const;
 
 export default function MapScreen() {
+  const router = useRouter();
+  const [activeFilter, setActiveFilter] = useState("Acik Olanlar");
+
   return (
     <Screen>
-      <AppHeader subtitle="Yakindaki kahve rotalari" title="Harita" />
+      <AppHeader onAction={() => router.push("/filters")} subtitle="Yakindaki kahve rotalari" title="Harita" />
       <View style={styles.mapCard}>
         <View style={styles.mapTexture}>
           <View style={[styles.road, styles.roadOne]} />
@@ -21,16 +31,22 @@ export default function MapScreen() {
           <Pin label="MOC" left="72%" top="38%" muted />
         </View>
         <View style={styles.mapSearch}>
-          <SearchBar placeholder="Semt veya mekan ara..." />
+          <SearchBar onFilterPress={() => router.push("/filters")} placeholder="Semt veya mekan ara..." />
           <View style={styles.filterRow}>
-            <Chip active icon="schedule" label="Acik Olanlar" />
-            <Chip icon="local-cafe" label="Kahveciler" />
-            <Chip icon="laptop-mac" label="Calisma" />
+            {mapFilters.map((filter) => (
+              <Chip
+                active={activeFilter === filter.label}
+                icon={filter.icon}
+                key={filter.label}
+                label={filter.label}
+                onPress={() => setActiveFilter(filter.label)}
+              />
+            ))}
           </View>
         </View>
-        <View style={styles.locationButton}>
+        <Pressable onPress={() => setActiveFilter("Acik Olanlar")} style={styles.locationButton}>
           <MaterialIcons color={colors.surface} name="my-location" size={24} />
-        </View>
+        </Pressable>
       </View>
 
       <View style={styles.resultHeader}>
@@ -45,7 +61,7 @@ export default function MapScreen() {
         <CafeCard key={cafe.id} cafe={cafe} compact />
       ))}
 
-      <View style={styles.routeCard}>
+      <Pressable onPress={() => router.push("/plan/new")} style={styles.routeCard}>
         <View style={styles.routeIcon}>
           <MaterialIcons color={colors.primary} name="route" size={25} />
         </View>
@@ -59,7 +75,7 @@ export default function MapScreen() {
           }}
           style={styles.routeImage}
         />
-      </View>
+      </Pressable>
     </Screen>
   );
 }

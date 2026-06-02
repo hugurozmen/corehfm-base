@@ -1,4 +1,5 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -15,6 +16,17 @@ const { colors, radius, spacing } = cafinderTheme;
 export default function PlanScreen() {
   const router = useRouter();
   const cafe = cafes[0];
+  const [selectedFriendIds, setSelectedFriendIds] = useState(
+    friends.filter((friend) => friend.selected).map((friend) => friend.id),
+  );
+
+  function toggleFriend(id: string) {
+    setSelectedFriendIds((current) => (
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id]
+    ));
+  }
 
   return (
     <Screen>
@@ -45,8 +57,17 @@ export default function PlanScreen() {
 
       <SectionTitle title="Arkadaslarini davet et" />
       <View style={styles.friendList}>
-        {friends.map((friend) => (
-          <View key={friend.id} style={styles.friendRow}>
+        {friends.map((friend) => {
+          const selected = selectedFriendIds.includes(friend.id);
+
+          return (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            key={friend.id}
+            onPress={() => toggleFriend(friend.id)}
+            style={styles.friendRow}
+          >
             {friend.imageUrl ? (
               <Image source={{ uri: friend.imageUrl }} style={styles.avatar} />
             ) : (
@@ -58,15 +79,16 @@ export default function PlanScreen() {
               <Text style={styles.friendName}>{friend.name}</Text>
               <Text style={styles.friendNote}>{friend.note}</Text>
             </View>
-            <View style={[styles.checkCircle, friend.selected ? styles.checkCircleSelected : null]}>
-              {friend.selected ? <MaterialIcons color={colors.surface} name="check" size={18} /> : null}
+            <View style={[styles.checkCircle, selected ? styles.checkCircleSelected : null]}>
+              {selected ? <MaterialIcons color={colors.surface} name="check" size={18} /> : null}
             </View>
-          </View>
-        ))}
+          </Pressable>
+        );
+        })}
       </View>
 
-      <SectionTitle action="Tum planlar" title="Yaklasan planlar" />
-      <View style={styles.upcomingCard}>
+      <SectionTitle action="Tum planlar" onActionPress={() => router.push("/plan/new")} title="Yaklasan planlar" />
+      <Pressable onPress={() => router.push("/plan/new")} style={styles.upcomingCard}>
         <View style={styles.calendarBox}>
           <Text style={styles.calendarMonth}>Eki</Text>
           <Text style={styles.calendarDay}>12</Text>
@@ -76,7 +98,7 @@ export default function PlanScreen() {
           <Text style={styles.upcomingText}>Petra Roasting Co. • 3 kisi • 14:00</Text>
         </View>
         <MaterialIcons color={colors.primary} name="chevron-right" size={24} />
-      </View>
+      </Pressable>
 
       <View style={styles.emptyCard}>
         <MaterialIcons color={colors.secondary} name="event-available" size={36} />

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -8,6 +9,13 @@ const { colors, radius, spacing } = cafinderTheme;
 
 export default function PhoneScreen() {
   const router = useRouter();
+  const [phone, setPhone] = useState("5");
+
+  function appendDigit(key: string) {
+    const digit = key[0] ?? "";
+
+    setPhone((current) => `${current}${digit}`.slice(0, 10));
+  }
 
   return (
     <Screen>
@@ -27,14 +35,16 @@ export default function PhoneScreen() {
           </View>
           <TextInput
             keyboardType="phone-pad"
+            onChangeText={setPhone}
             placeholder="5-- --- -- --"
             placeholderTextColor={colors.muted}
             style={styles.input}
+            value={phone}
           />
         </View>
         <View style={styles.keypad}>
           {["1", "2 ABC", "3 DEF", "4 GHI", "5 JKL", "6 MNO", "7 PQRS", "8 TUV", "9 WXYZ", "0"].map((key) => (
-            <Pressable key={key} style={styles.key}>
+            <Pressable key={key} onPress={() => appendDigit(key)} style={styles.key}>
               <Text style={styles.keyText}>{key}</Text>
             </Pressable>
           ))}
